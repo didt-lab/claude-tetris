@@ -1,0 +1,14 @@
+{
+  "name": "claude-tetris-ab-test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Utility scripts for this project (SEO meta-description A/B test between Claude models).",
+  "scripts": {
+    "ab-test": "node ab-test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "dotenv": "^17.2.3"
+  }
+}
