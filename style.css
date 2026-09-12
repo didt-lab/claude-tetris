@@ -70,6 +70,17 @@ body {
   border-radius: 4px;
 }
 
+.theme-select {
+  background: #22223a;
+  color: #e0e0e0;
+  border: 1px solid #3a3a5a;
+  border-radius: 4px;
+  padding: 5px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 /* ---- Controles ---- */
 .controls ul {
   list-style: none;
@@ -149,4 +160,150 @@ kbd {
 
 #restart-btn:hover {
   background: #9bbdff;
+}
+
+/* ---- Tema: Neon ---- */
+body[data-theme="neon"] {
+  background: #000;
+}
+
+body[data-theme="neon"] #board,
+body[data-theme="neon"] #next-canvas {
+  background: #000;
+  border-color: #0ff3;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.35), 0 0 40px rgba(0, 0, 0, 0.7);
+}
+
+body[data-theme="neon"] .value {
+  color: #4dfaff;
+  text-shadow: 0 0 6px rgba(77, 250, 255, 0.8);
+}
+
+body[data-theme="neon"] .label {
+  color: #2fa8b3;
+}
+
+body[data-theme="neon"] kbd {
+  background: #001a1c;
+  border-color: #0ff3;
+  color: #4dfaff;
+}
+
+body[data-theme="neon"] .theme-select {
+  background: #001a1c;
+  border-color: #0ff3;
+  color: #4dfaff;
+}
+
+body[data-theme="neon"] #restart-btn {
+  background: #4dfaff;
+  color: #000;
+}
+
+body[data-theme="neon"] #restart-btn:hover {
+  background: #9dfcff;
+}
+
+body[data-theme="neon"] #overlay-title {
+  color: #4dfaff;
+  text-shadow: 0 0 8px rgba(77, 250, 255, 0.8);
+}
+
+/* ---- Tema: Pastel ---- */
+body[data-theme="pastel"] {
+  background: #fdf6f3;
+  color: #6a5a68;
+}
+
+body[data-theme="pastel"] #board,
+body[data-theme="pastel"] #next-canvas {
+  background: #fffaf6;
+  border-color: #f0d9e8;
+  box-shadow: 0 0 20px rgba(180, 142, 201, 0.2);
+}
+
+body[data-theme="pastel"] .value {
+  color: #b48ec9;
+}
+
+body[data-theme="pastel"] .label {
+  color: #c9a8bd;
+}
+
+body[data-theme="pastel"] .controls li {
+  color: #a191a0;
+}
+
+body[data-theme="pastel"] kbd {
+  background: #fdeef7;
+  border-color: #f0d9e8;
+  color: #b48ec9;
+}
+
+body[data-theme="pastel"] .theme-select {
+  background: #fdeef7;
+  border-color: #f0d9e8;
+  color: #8a6a80;
+}
+
+body[data-theme="pastel"] #restart-btn {
+  background: #cbb3e8;
+  color: #fff;
+}
+
+body[data-theme="pastel"] #restart-btn:hover {
+  background: #dcc9f0;
+}
+
+body[data-theme="pastel"] .overlay {
+  background: rgba(253, 246, 243, 0.85);
+}
+
+body[data-theme="pastel"] #overlay-title {
+  color: #d99aa8;
+}
+
+/* ---- Tema: Pixel art ---- */
+body[data-theme="pixel"] {
+  background: #12130d;
+}
+
+body[data-theme="pixel"] #board,
+body[data-theme="pixel"] #next-canvas {
+  background: #1a1c12;
+  border-color: #3a3a24;
+}
+
+body[data-theme="pixel"] .value {
+  color: #8bff6b;
+}
+
+body[data-theme="pixel"] .label {
+  color: #5a7a4a;
+}
+
+body[data-theme="pixel"] kbd {
+  background: #1f230f;
+  border-color: #3a3a24;
+  color: #8bff6b;
+}
+
+body[data-theme="pixel"] .theme-select {
+  background: #1f230f;
+  border-color: #3a3a24;
+  color: #8bff6b;
+}
+
+body[data-theme="pixel"] #restart-btn {
+  background: #8bff6b;
+  color: #12130d;
+  border-radius: 0;
+}
+
+body[data-theme="pixel"] #restart-btn:hover {
+  background: #b0ff98;
+}
+
+body[data-theme="pixel"] #overlay-title {
+  color: #8bff6b;
 }

@@ -28,6 +28,52 @@ const PIECES = [
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
 
+const PASTEL_COLORS = [
+  null,
+  '#a8e4ec', // I
+  '#fdeaa8', // O
+  '#dcb3e8', // T
+  '#bfe6c1', // S
+  '#f2b9b9', // Z
+  '#b7bfea', // J
+  '#f8d2ac', // L
+];
+
+const THEME_NAME_KEY = 'tetris-theme';
+
+const THEMES = {
+  retro: {
+    colors: COLORS,
+    glow: false,
+    rounded: false,
+    pixel: false,
+    gridColor: '#22222e',
+  },
+  neon: {
+    colors: COLORS,
+    glow: true,
+    rounded: false,
+    pixel: false,
+    gridColor: '#101018',
+  },
+  pastel: {
+    colors: PASTEL_COLORS,
+    glow: false,
+    rounded: true,
+    pixel: false,
+    gridColor: '#e8dce8',
+  },
+  pixel: {
+    colors: COLORS,
+    glow: false,
+    rounded: false,
+    pixel: true,
+    gridColor: '#22222e',
+  },
+};
+
+let currentTheme = 'retro';
+
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const nextCanvas = document.getElementById('next-canvas');
@@ -39,6 +85,7 @@ const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
+const themeSelect = document.getElementById('theme-select');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
 
@@ -156,20 +203,101 @@ function updateHUD() {
   levelEl.textContent = level;
 }
 
+function drawRoundedRect(context, x, y, w, h, r) {
+  if (typeof context.roundRect === 'function') {
+    context.beginPath();
+    context.roundRect(x, y, w, h, r);
+    return;
+  }
+  const rr = Math.max(0, Math.min(r, w / 2, h / 2));
+  context.beginPath();
+  context.moveTo(x + rr, y);
+  context.lineTo(x + w - rr, y);
+  context.quadraticCurveTo(x + w, y, x + w, y + rr);
+  context.lineTo(x + w, y + h - rr);
+  context.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+  context.lineTo(x + rr, y + h);
+  context.quadraticCurveTo(x, y + h, x, y + h - rr);
+  context.lineTo(x, y + rr);
+  context.quadraticCurveTo(x, y, x + rr, y);
+  context.closePath();
+}
+
+function drawPixelTexture(context, px, py, s) {
+  const cells = 4;
+  const cellSize = s / cells;
+  for (let ry = 0; ry < cells; ry++) {
+    for (let rx = 0; rx < cells; rx++) {
+      context.fillStyle = (rx + ry) % 2 === 0 ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)';
+      context.fillRect(px + rx * cellSize, py + ry * cellSize, cellSize, cellSize);
+    }
+  }
+  context.strokeStyle = 'rgba(0,0,0,0.45)';
+  context.lineWidth = 1;
+  context.strokeRect(px + 0.5, py + 0.5, s - 1, s - 1);
+}
+
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
-  const color = COLORS[colorIndex];
+  const theme = THEMES[currentTheme] || THEMES.retro;
+  const color = theme.colors[colorIndex] || COLORS[colorIndex];
+  const px = x * size + 1;
+  const py = y * size + 1;
+  const s = size - 2;
+  const r = Math.min(6, s / 3);
+
+  context.save();
   context.globalAlpha = alpha ?? 1;
+
+  if (theme.glow) {
+    context.shadowColor = color;
+    context.shadowBlur = size * 0.6;
+  }
+
   context.fillStyle = color;
-  context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-  // highlight
-  context.fillStyle = 'rgba(255,255,255,0.12)';
-  context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
-  context.globalAlpha = 1;
+  if (theme.rounded) {
+    drawRoundedRect(context, px, py, s, s, r);
+    context.fill();
+  } else {
+    context.fillRect(px, py, s, s);
+  }
+
+  // texture/highlight is drawn without glow so it stays crisp
+  context.shadowBlur = 0;
+
+  if (theme.pixel) {
+    drawPixelTexture(context, px, py, s);
+  } else {
+    context.fillStyle = 'rgba(255,255,255,0.12)';
+    if (theme.rounded) {
+      drawRoundedRect(context, px, py, s, Math.min(4, s), r);
+      context.fill();
+    } else {
+      context.fillRect(px, py, s, 4);
+    }
+  }
+
+  context.restore();
+}
+
+function applyTheme(name) {
+  if (!THEMES[name]) name = 'retro';
+  currentTheme = name;
+  document.body.setAttribute('data-theme', name);
+  try {
+    localStorage.setItem(THEME_NAME_KEY, name);
+  } catch (err) {
+    // localStorage unavailable (privacy mode, blocked storage, etc.) - theme still applies this session
+  }
+  if (themeSelect) themeSelect.value = name;
+  // Repaint immediately in case the render loop isn't running (paused/game over).
+  if (current) draw();
+  if (next) drawNext();
 }
 
 function drawGrid() {
-  ctx.strokeStyle = '#22222e';
+  const theme = THEMES[currentTheme] || THEMES.retro;
+  ctx.strokeStyle = theme.gridColor;
   ctx.lineWidth = 0.5;
   for (let c = 1; c < COLS; c++) {
     ctx.beginPath();
@@ -301,4 +429,15 @@ document.addEventListener('keydown', e => {
 
 restartBtn.addEventListener('click', init);
 
+if (themeSelect) {
+  themeSelect.addEventListener('change', e => applyTheme(e.target.value));
+}
+
+let savedTheme = 'retro';
+try {
+  savedTheme = localStorage.getItem(THEME_NAME_KEY) || 'retro';
+} catch (err) {
+  savedTheme = 'retro';
+}
+applyTheme(savedTheme);
 init();
